@@ -306,3 +306,7 @@ body {
 #closing {
     padding-bottom: 2.5rem;
 }
+
+.location-mark, #details, #sponsor {
+    display: none;
+}
