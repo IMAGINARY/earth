@@ -34,6 +34,10 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
  * Page Styling
  **************************************************************************************************/
 
+html, body {
+    overscroll-behavior: none;
+}
+
 a, .text-button {
     color: #888888;
 }
