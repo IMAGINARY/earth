@@ -36,6 +36,7 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
 
 html, body {
     overscroll-behavior: none;
+    user-select: none;
 }
 
 a, .text-button {
