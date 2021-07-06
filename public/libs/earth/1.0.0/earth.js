@@ -171,6 +171,11 @@
              * This allows to click the zoom buttons repeatedly for faster zoom.
              */
             targetZoomScale = factor * (Math.log(factor) * Math.log(lastZoomFactor) > 0 ? targetZoomScale : zoom.scale());
+
+            // Clamp with the globe's scale extent.
+            const [minScaleExtent, maxScaleExtent] = globe.scaleExtent();
+            targetZoomScale = Math.min(maxScaleExtent, Math.max(minScaleExtent, targetZoomScale));
+
             lastZoomFactor = factor;
 
             zoom.scale(targetZoomScale);
