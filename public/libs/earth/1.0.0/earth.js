@@ -160,28 +160,20 @@
             });
 
         const svg = d3.select('svg')
-        let targetZoomScale = zoom.scale();
-        let lastZoomFactor = Number.NaN;
         function zoomClicked() {
             svg.call(zoom.event); // https://github.com/mbostock/d3/issues/2387
 
             const factor = this.getAttribute("data-zoom");
 
-            /**
-             * If the zoom direction changes, start at the current scale, otherwise, accumulate scale factors.
-             * This allows to click the zoom buttons repeatedly for faster zoom.
-             */
-            targetZoomScale = factor * (Math.log(factor) * Math.log(lastZoomFactor) > 0 ? targetZoomScale : zoom.scale());
-
             // Clamp with the globe's scale extent.
             const [minScaleExtent, maxScaleExtent] = globe.scaleExtent();
-            targetZoomScale = Math.min(maxScaleExtent, Math.max(minScaleExtent, targetZoomScale));
+            const targetZoomScale = Math.min(maxScaleExtent, Math.max(minScaleExtent, factor * zoom.scale()));
 
-            lastZoomFactor = factor;
+            if(targetZoomScale !== zoom.scale()) {
+                zoom.scale(targetZoomScale);
 
-            zoom.scale(targetZoomScale);
-
-            svg.transition().duration(750).call(zoom.event);
+                svg.transition().duration(750).call(zoom.event);
+            }
         }
 
         d3.selectAll(".imaginary-menu[data-zoom]")
