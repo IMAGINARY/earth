@@ -110,15 +110,22 @@ body {
     pointer-events: none;  /* This div is just a container--do not let it interfere with operation of the map. */
 }
 
+#imaginary-details {
+    bottom: 2vmin;
+    left: 2vmin;
+    right: 2vmin;
+    width: calc( 100% - 2 * 2vmin );
+}
+
 #earth {
     font-size: 2.4rem;
 }
 
-#status, #location, #menu {
-    font-size: 1.75rem;
+#status, #location, #menu, .imaginary-menu {
+    font-size: 2.75rem;
 }
 
-#status, #location, #earth {
+#status, #location, #earth, .imaginary-menu {
     background-color: rgba(0, 0, 5, 0.6);
     border-radius: 0.5rem/0.5rem;
     display: table;
@@ -127,7 +134,7 @@ body {
     pointer-events: all;
 }
 
-#menu, #imaginary-menu {
+#menu, .imaginary-menu {
     background-color: rgba(5, 10, 30, 0.85);
     border-radius: 0.5rem/0.5rem;
     overflow: hidden;
@@ -141,6 +148,12 @@ body {
     -webkit-transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
 }
 
+.mode-menu-container {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
 #menu.invisible {
     margin-top: 0;
     padding: 0 1rem 0 1rem;
@@ -148,6 +161,24 @@ body {
     max-height: 0;
     transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
     -webkit-transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
+}
+
+.zoom-menu-container {
+    display: inline-block;
+    position: absolute;
+    bottom: 0;
+}
+
+.zoom-menu-container > * {
+    display: block;
+    color: white;
+    text-align: center;
+    height: auto;
+}
+
+.imaginary-menu.zoom {
+    padding-left: 1.35rem;
+    padding-right: 1.35rem;
 }
 
 #progress {

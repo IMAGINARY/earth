@@ -178,7 +178,7 @@
             svg.transition().duration(750).call(zoom.event);
         }
 
-        d3.selectAll("#imaginary-menu *[data-zoom]")
+        d3.selectAll(".imaginary-menu[data-zoom]")
             .on("click", zoomClicked);
 
         var signalEnd = _.debounce(function() {
