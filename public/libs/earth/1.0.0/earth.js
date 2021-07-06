@@ -124,10 +124,21 @@
         var zoom = d3.behavior.zoom()
             .on("zoomstart", function() {
                 op = op || newOp(d3.mouse(this), zoom.scale());  // a new operation begins
+                // stop zoom transitions caused by the zoom buttons
+                const sourceEvent = d3.event.sourceEvent;
+                if (sourceEvent !== null && sourceEvent.type !== 'click')
+                    svg.interrupt();
             })
             .on("zoom", function() {
                 var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
-                op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
+                if (op === null) { // Fix bug on some browsers where zoomstart fires out of order.
+                    op = newOp(currentMouse, 1);
+                    // stop zoom transitions caused by the zoom buttons
+                    const sourceEvent = d3.event.sourceEvent;
+                    if (sourceEvent !== null && sourceEvent.type !== 'click')
+                        svg.interrupt();
+                }
+
                 if (op.type === "click" || op.type === "spurious") {
                     var distanceMoved = µ.distance(currentMouse, op.startMouse);
                     if (currentScale === op.startScale && distanceMoved < MIN_MOVE) {
