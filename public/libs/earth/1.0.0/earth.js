@@ -172,7 +172,7 @@
             if(targetZoomScale !== zoom.scale()) {
                 zoom.scale(targetZoomScale);
 
-                svg.transition().duration(750).call(zoom.event);
+                svg.transition().ease('linear').duration(750).call(zoom.event);
             }
         }
 
