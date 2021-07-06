@@ -72,9 +72,6 @@
 
     // Construct the page's main internal components:
 
-    var configuration =
-        µ.buildConfiguration(globes, products.overlayTypes);  // holds the page's current configuration settings
-    var inputController = buildInputController();             // interprets drag/zoom operations
     var meshAgent = newAgent();      // map data for the earth
     var globeAgent = newAgent();     // the model of the globe
     var gridAgent = newAgent();      // the grid of weather data
@@ -82,6 +79,10 @@
     var fieldAgent = newAgent();     // the interpolated wind vector field
     var animatorAgent = newAgent();  // the wind animator
     var overlayAgent = newAgent();   // color overlay over the animation
+
+    var configuration =
+        µ.buildConfiguration(globes, products.overlayTypes);  // holds the page's current configuration settings
+    var inputController = buildInputController();             // interprets drag/zoom operations
 
     /**
      * The input controller is an object that translates move operations (drag and/or zoom) into mutations of the
@@ -232,6 +233,17 @@
                 return _ ? this : globe;
             }
         }, Backbone.Events);
+
+        function toggleZoomButtons() {
+            const scale = globe.projection.scale();
+
+            const [minScaleExtent,maxScaleExtent] = globe.scaleExtent();
+            d3.select("#imaginary-zoom-in").classed("disabled", scale >= maxScaleExtent);
+            d3.select("#imaginary-zoom-out").classed("disabled", scale <= minScaleExtent);
+        }
+        dispatch.on('move', toggleZoomButtons);
+        globeAgent.on('update', toggleZoomButtons);
+
         return dispatch.listenTo(configuration, "change:orientation", reorient);
     }
 

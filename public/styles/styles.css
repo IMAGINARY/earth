@@ -48,7 +48,8 @@ a, .text-button {
 }
 
 .text-button.disabled {
-    color: #444444;
+    color: #444444 !important;
+    cursor: inherit !important;
 }
 
 a:hover, a:focus, .no-touch .text-button:hover, .no-touch .text-button:focus, .text-button:active {
