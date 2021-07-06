@@ -103,7 +103,7 @@ body {
     text-decoration: none;
 }
 
-#details {
+#details, #imaginary-details {
     position: absolute;
     bottom: 3%;
     left: 2%;
@@ -127,7 +127,7 @@ body {
     pointer-events: all;
 }
 
-#menu {
+#menu, #imaginary-menu {
     background-color: rgba(5, 10, 30, 0.85);
     border-radius: 0.5rem/0.5rem;
     overflow: hidden;

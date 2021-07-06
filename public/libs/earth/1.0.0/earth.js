@@ -1030,15 +1030,16 @@
         });
 
         // Add handlers for mode buttons.
-        d3.select("#wind-mode-enable").on("click", function() {
+        d3.selectAll("#wind-mode-enable, #imaginary-wind-mode-enable").on("click", function() {
+            console.log("click")
             if (configuration.get("param") !== "wind") {
                 configuration.save({param: "wind", surface: "surface", level: "level", overlayType: "default"});
             }
         });
         configuration.on("change:param", function(x, param) {
-            d3.select("#wind-mode-enable").classed("highlighted", param === "wind");
+            d3.selectAll("#wind-mode-enable, #imaginary-wind-mode-enable").classed("highlighted", param === "wind");
         });
-        d3.select("#ocean-mode-enable").on("click", function() {
+        d3.selectAll("#ocean-mode-enable, #imaginary-ocean-mode-enable").on("click", function() {
             if (configuration.get("param") !== "ocean") {
                 // When switching between modes, there may be no associated data for the current date. So we need
                 // find the closest available according to the catalog. This is not necessary if date is "current".
@@ -1059,7 +1060,7 @@
             }
         });
         configuration.on("change:param", function(x, param) {
-            d3.select("#ocean-mode-enable").classed("highlighted", param === "ocean");
+            d3.selectAll("#ocean-mode-enable, #imaginary-ocean-mode-enable").classed("highlighted", param === "ocean");
         });
 
         // Add logic to disable buttons that are incompatible with each other.
