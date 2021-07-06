@@ -146,15 +146,40 @@
                 dispatch.trigger("move");
             })
             .on("zoomend", function() {
-                op.manipulator.end();
-                if (op.type === "click") {
-                    dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
+                if(op !==null) {
+                    op.manipulator.end();
+                    if (op.type === "click") {
+                        dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
+                    }
+                    else if (op.type !== "spurious") {
+                        signalEnd();
+                    }
+                    op = null;  // the drag/zoom/click operation is over
                 }
-                else if (op.type !== "spurious") {
-                    signalEnd();
-                }
-                op = null;  // the drag/zoom/click operation is over
             });
+
+        const svg = d3.select('svg')
+        let targetZoomScale = zoom.scale();
+        let lastZoomFactor = Number.NaN;
+        function zoomClicked() {
+            svg.call(zoom.event); // https://github.com/mbostock/d3/issues/2387
+
+            const factor = this.getAttribute("data-zoom");
+
+            /**
+             * If the zoom direction changes, start at the current scale, otherwise, accumulate scale factors.
+             * This allows to click the zoom buttons repeatedly for faster zoom.
+             */
+            targetZoomScale = factor * (Math.log(factor) * Math.log(lastZoomFactor) > 0 ? targetZoomScale : zoom.scale());
+            lastZoomFactor = factor;
+
+            zoom.scale(targetZoomScale);
+
+            svg.transition().duration(750).call(zoom.event);
+        }
+
+        d3.selectAll("#imaginary-menu *[data-zoom]")
+            .on("click", zoomClicked);
 
         var signalEnd = _.debounce(function() {
             if (!op || op.type !== "drag" && op.type !== "zoom") {
