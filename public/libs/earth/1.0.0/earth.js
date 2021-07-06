@@ -237,14 +237,16 @@
             }
         }, Backbone.Events);
 
-        function toggleZoomButtons() {
-            const scale = globe.projection.scale();
+        function toggleZoomButtons(globe) {
+            if (globe && globe.projection) {
+                const scale = globe.projection.scale();
 
-            const [minScaleExtent,maxScaleExtent] = globe.scaleExtent();
-            d3.select("#imaginary-zoom-in").classed("disabled", scale >= maxScaleExtent);
-            d3.select("#imaginary-zoom-out").classed("disabled", scale <= minScaleExtent);
+                const [minScaleExtent, maxScaleExtent] = globe.scaleExtent();
+                d3.select("#imaginary-zoom-in").classed("disabled", scale >= maxScaleExtent);
+                d3.select("#imaginary-zoom-out").classed("disabled", scale <= minScaleExtent);
+            }
         }
-        dispatch.on('move', toggleZoomButtons);
+        dispatch.on('move', () => toggleZoomButtons(globe));
         globeAgent.on('update', toggleZoomButtons);
 
         return dispatch.listenTo(configuration, "change:orientation", reorient);
