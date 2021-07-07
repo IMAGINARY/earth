@@ -15,7 +15,7 @@
     var MAX_TASK_TIME = 100;                  // amount of time before a task yields control (millis)
     var MIN_SLEEP_TIME = 25;                  // amount of time a task waits before resuming (millis)
     var MIN_MOVE = 4;                         // slack before a drag operation beings (pixels)
-    var MOVE_END_WAIT = 1000;                 // time to wait for a move operation to be considered done (millis)
+    var MOVE_END_WAIT = 100;                  // time to wait for a move operation to be considered done (millis)
 
     var OVERLAY_ALPHA = Math.floor(0.4*255);  // overlay transparency (on scale [0, 255])
     var INTENSITY_SCALE_STEP = 10;            // step size of particle intensity color scale
