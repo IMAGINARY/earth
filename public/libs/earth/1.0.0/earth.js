@@ -953,13 +953,12 @@
             d3.select("#display").classed("firefox", true);
         }
 
-        // Tweak document to distinguish CSS styling between touch and non-touch environments. Hacky hack.
-        if ("ontouchstart" in document.documentElement) {
-            d3.select(document).on("touchstart", function() {});  // this hack enables :active pseudoclass
-        }
-        else {
-            d3.select(document.documentElement).classed("no-touch", true);  // to filter styles problematic for touch
-        }
+        // assume no touch input by default
+        d3.select(document.body).classed("no-touch", true); // to filter styles problematic for touch
+        // if touch input happens, remove the no-touch flag
+        d3.select(document.body).on("touchstart", function () {
+            d3.select(this).classed("no-touch", false);
+        });
 
         // Bind configuration to URL bar changes.
         d3.select(window).on("hashchange", function() {
