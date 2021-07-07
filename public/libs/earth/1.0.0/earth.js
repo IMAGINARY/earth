@@ -246,7 +246,7 @@
                 d3.select("#imaginary-zoom-out").classed("disabled", scale <= minScaleExtent);
             }
         }
-        dispatch.on('move', () => toggleZoomButtons(globe));
+        dispatch.on('moveStart move moveEnd', () => toggleZoomButtons(globe));
         globeAgent.on('update', toggleZoomButtons);
 
         return dispatch.listenTo(configuration, "change:orientation", reorient);
