@@ -170,6 +170,7 @@
                 }
             });
 
+        d3.interpolateZoom = d3.interpolateArray;
         const svg = d3.select('svg')
         function zoomClicked() {
             svg.call(zoom.event); // https://github.com/mbostock/d3/issues/2387
