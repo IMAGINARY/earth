@@ -12,6 +12,14 @@
     src: url("./monosocialiconsfont-sub.ttf?v1");
 }
 
+@font-face {
+    font-family: 'Big Shoulders Display';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("./BigShouldersDisplay-Medium.ttf");
+}
+
 /**************************************************************************************************
  * Styling Reset
  **************************************************************************************************/
@@ -20,7 +28,7 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     margin: 0;
     padding: 0;
     border: 0;
-    font: 1em mplus-2p-light-sub,Helvetica,arial,freesans,clean,sans-serif;
+    font: 1em 'Big Shoulders Display',Helvetica,arial,freesans,clean,sans-serif;
     -webkit-font-smoothing: subpixel-antialiased; /* safari disables subpixel antialiasing for some reason */
 }
 
@@ -121,6 +129,7 @@ body {
     left: 2vmin;
     right: 2vmin;
     width: calc( 100% - 2 * 2vmin );
+    text-transform: uppercase;
 }
 
 #earth {
@@ -128,10 +137,10 @@ body {
 }
 
 #status, #location, #menu, .imaginary-menu {
-    font-size: 2.75rem;
+    font-size: 4.5rem;
 }
 
-#status, #location, #earth, .imaginary-menu {
+#status, #location, #earth, .imaginary-details {
     background-color: rgba(0, 0, 5, 0.6);
     border-radius: 0.5rem/0.5rem;
     display: table;
@@ -182,8 +191,8 @@ body {
 }
 
 .imaginary-menu.zoom {
-    padding-left: 1.35rem;
-    padding-right: 1.35rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
 }
 
 #progress {
