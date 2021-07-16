@@ -113,6 +113,7 @@
          * @returns {Object} an object to represent the state for one move operation.
          */
         function newOp(startMouse, startScale) {
+            console.log(startMouse, startScale)
             return {
                 type: "click",  // initially assumed to be a click operation
                 startMouse: startMouse,
@@ -121,20 +122,23 @@
             };
         }
 
-        var zoom = d3.behavior.zoom()
-            .on("zoomstart", function() {
-                op = op || newOp(d3.mouse(this), zoom.scale());  // a new operation begins
+        var zoom = d3.zoom()
+            .on("start", function(event) {
+                console.log(d3.pointer(event),  event.transform.k)
+                op = op || newOp(d3.pointer(event), event.transform.k);  // a new operation begins
                 // stop zoom transitions caused by the zoom buttons
-                const sourceEvent = d3.event.sourceEvent;
+                const sourceEvent = event.sourceEvent;
                 if (sourceEvent !== null && sourceEvent.type !== 'click')
                     svg.interrupt();
             })
-            .on("zoom", function() {
-                var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
+            .on("zoom", function(event) {
+                console.log(event)
+                var currentMouse = d3.pointer(event), currentScale =event.transform.k;
+                console.log(d3.pointer(event), d3.zoomTransform(svg.node()).k)
                 if (op === null) { // Fix bug on some browsers where zoomstart fires out of order.
                     op = newOp(currentMouse, 1);
                     // stop zoom transitions caused by the zoom buttons
-                    const sourceEvent = d3.event.sourceEvent;
+                    const sourceEvent = event.sourceEvent;
                     if (sourceEvent !== null && sourceEvent.type !== 'click')
                         svg.interrupt();
                 }
@@ -157,7 +161,13 @@
                 op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
                 dispatch.trigger("move");
             })
-            .on("zoomend", function() {
+            .on("end", function(event) {
+                console.log(event, op)
+                if(globe && (event.transform.k !== globe.projection.scale())) {
+                    console.log("setting to 'zoom'", globe.projection.scale())
+                    svg.call(zoom.transform, d3.zoomIdentity.scale(globe.projection.scale()));
+                }
+
                 if(op !==null) {
                     op.manipulator.end();
                     if (op.type === "click") {
@@ -170,20 +180,28 @@
                 }
             });
 
+        console.log("zoom obj", zoom);
+
         const svg = d3.select('svg')
+
+        window.svg = svg;
+        window.zoom = zoom;
+        
         function zoomClicked() {
-            svg.call(zoom.event); // https://github.com/mbostock/d3/issues/2387
+            //svg.call(zoom.event); // https://github.com/mbostock/d3/issues/2387
 
             const factor = this.getAttribute("data-zoom");
 
             // Clamp with the globe's scale extent.
             const [minScaleExtent, maxScaleExtent] = globe.scaleExtent();
-            const targetZoomScale = Math.min(maxScaleExtent, Math.max(minScaleExtent, factor * zoom.scale()));
+            const currentZoomScale = d3.zoomTransform(svg.node()).k;
+            const targetZoomScale = Math.min(maxScaleExtent, Math.max(minScaleExtent, factor * currentZoomScale));
 
-            if(targetZoomScale !== zoom.scale()) {
-                zoom.scale(targetZoomScale);
+            console.log(currentZoomScale, targetZoomScale)
 
-                svg.transition().ease('linear').duration(750).call(zoom.event);
+            if(targetZoomScale !== currentZoomScale) {
+                svg.interrupt();
+                svg.transition().ease(d3.easeLinear).duration(750).call(zoom.transform, d3.zoomIdentity.scale(targetZoomScale));
             }
         }
 
@@ -218,11 +236,13 @@
             if (!globe || options.source === "moveEnd") {
                 // reorientation occurred because the user just finished a move operation, so globe is already
                 // oriented correctly.
+                console.log('reorient no globe');
                 return;
             }
             dispatch.trigger("moveStart");
+            console.log('reorient',d3.zoomIdentity.scale(globe.projection.scale()))
             globe.orientation(configuration.get("orientation"), view);
-            zoom.scale(globe.projection.scale());
+            svg.call(zoom.transform, d3.zoomIdentity.scale(globe.projection.scale()));
             dispatch.trigger("moveEnd");
         }
 
@@ -230,7 +250,10 @@
             globe: function(_) {
                 if (_) {
                     globe = _;
+                    window.globe = globe;
                     zoom.scaleExtent(globe.scaleExtent());
+                    console.log('new globe', globe.projection.scale());
+                    svg.call(zoom.transform, d3.zoomIdentity.scale(globe.projection.scale()));
                     reorient();
                 }
                 return _ ? this : globe;
@@ -249,7 +272,10 @@
         dispatch.on('moveStart move moveEnd', () => toggleZoomButtons(globe));
         globeAgent.on('update', toggleZoomButtons);
 
-        return dispatch.listenTo(configuration, "change:orientation", reorient);
+        return dispatch.listenTo(configuration, "change:orientation", (...args) => {
+            console.log("change:orientation", args);
+            reorient(...args);
+        });
     }
 
     /**
@@ -257,9 +283,14 @@
      * @returns {Object} a promise for GeoJSON topology features: {boundaryLo:, boundaryHi:}
      */
     function buildMesh(resource) {
+        console.log("buildMesh", resource)
         var cancel = this.cancel;
         report.status("Downloading...");
-        return µ.loadJson(resource).then(function(topo) {
+        console.log("before loadJson")
+        const jsonPromise = µ.loadJson(resource);
+        console.log(jsonPromise)
+        return jsonPromise.then(function(topo) {
+            console.log(topo, cancel)
             if (cancel.requested) return null;
             log.time("building meshes");
             var o = topo.objects;
@@ -283,10 +314,14 @@
      */
     function buildGlobe(projectionName) {
         var builder = globes.get(projectionName);
+        console.log(builder)
         if (!builder) {
             return when.reject("Unknown projection: " + projectionName);
         }
-        return when(builder(view));
+        const b = builder(view);
+        const w = when(b);
+        console.log(b, w)
+        return w;
     }
 
     // Some hacky stuff to ensure only one download can be in progress at a time.
@@ -325,6 +360,7 @@
     }
 
     function buildRenderer(mesh, globe) {
+        console.log('buildRenderer',mesh, globe);
         if (!mesh || !globe) return null;
 
         report.status("Rendering Globe...");
@@ -343,7 +379,7 @@
         // Create new map svg elements.
         globe.defineMap(d3.select("#map"), d3.select("#foreground"));
 
-        var path = d3.geo.path().projection(globe.projection).pointRadius(7);
+        var path = d3.geoPath().projection(globe.projection).pointRadius(7);
         var coastline = d3.select(".coastline");
         var lakes = d3.select(".lakes");
         d3.selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
@@ -401,7 +437,9 @@
 
         // Finally, inject the globe model into the input controller. Do it on the next event turn to ensure
         // renderer is fully set up before events start flowing.
+        console.log("buildRendere")
         when(true).then(function() {
+            console.log("inject",globe)
             inputController.globe(globe);
         });
 
@@ -973,6 +1011,7 @@
         });
 
         globeAgent.listenTo(configuration, "change:projection", function(source, attr) {
+            console.log("globe change", attr, typeof(attr));
             globeAgent.submit(buildGlobe, attr);
         });
 
@@ -1131,6 +1170,7 @@
         configuration.on("change:showGridPoints", function(x, showGridPoints) {
             d3.select("#option-show-grid").classed("highlighted", showGridPoints);
         });
+        configuration.on('change',(...args) => console.log("change",args));
 
         // Add handlers for all wind level buttons.
         d3.selectAll(".surface").each(function() {
@@ -1150,7 +1190,7 @@
         bindButtonToConfiguration("#overlay-currents", {overlayType: "default"});
 
         // Add handlers for all projection buttons.
-        globes.keys().forEach(function(p) {
+        globes.forEach(function(_, p) {
             bindButtonToConfiguration("#" + p, {projection: p, orientation: ""}, ["projection"]);
         });
 

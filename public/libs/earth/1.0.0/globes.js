@@ -62,7 +62,7 @@ var globes = function() {
              *          the bounds of the current projection clamped to the specified view.
              */
             bounds: function(view) {
-                return clampedBounds(d3.geo.path().projection(this.projection).bounds({type: "Sphere"}), view);
+                return clampedBounds(d3.geoPath().projection(this.projection).bounds({type: "Sphere"}), view);
             },
 
             /**
@@ -71,7 +71,7 @@ var globes = function() {
              */
             fit: function(view) {
                 var defaultProjection = this.newProjection(view);
-                var bounds = d3.geo.path().projection(defaultProjection).bounds({type: "Sphere"});
+                var bounds = d3.geoPath().projection(defaultProjection).bounds({type: "Sphere"});
                 var hScale = (bounds[1][0] - bounds[0][0]) / defaultProjection.scale();
                 var vScale = (bounds[1][1] - bounds[0][1]) / defaultProjection.scale();
                 return Math.min(view.width / hScale, view.height / vScale) * 0.9;
@@ -130,7 +130,7 @@ var globes = function() {
                 projection.precision(original * 10);
                 return {
                     move: function(mouse, scale) {
-                        if (mouse) {
+                        if (mouse && mouse[0] && mouse[1]) {
                             var xd = mouse[0] - startMouse[0] + rotation[0];
                             var yd = mouse[1] - startMouse[1] + rotation[1];
                             projection.rotate([xd * sensitivity, -yd * sensitivity, projection.rotate()[2]]);
@@ -156,7 +156,7 @@ var globes = function() {
              * @returns the context
              */
             defineMask: function(context) {
-                d3.geo.path().projection(this.projection).context(context)({type: "Sphere"});
+                d3.geoPath().projection(this.projection).context(context)({type: "Sphere"});
                 return context;
             },
 
@@ -166,7 +166,7 @@ var globes = function() {
              * @param foregroundSvg the foreground SVG container.
              */
             defineMap: function(mapSvg, foregroundSvg) {
-                var path = d3.geo.path().projection(this.projection);
+                var path = d3.geoPath().projection(this.projection);
                 var defs = mapSvg.append("defs");
                 defs.append("path")
                     .attr("id", "sphere")
@@ -177,11 +177,11 @@ var globes = function() {
                     .attr("class", "background-sphere");
                 mapSvg.append("path")
                     .attr("class", "graticule")
-                    .datum(d3.geo.graticule())
+                    .datum(d3.geoGraticule())
                     .attr("d", path);
                 mapSvg.append("path")
                     .attr("class", "hemisphere")
-                    .datum(d3.geo.graticule().minorStep([0, 90]).majorStep([0, 90]))
+                    .datum(d3.geoGraticule().stepMinor([0, 90]).stepMajor([0, 90]))
                     .attr("d", path);
                 mapSvg.append("path")
                     .attr("class", "coastline");
@@ -205,7 +205,7 @@ var globes = function() {
     function atlantis() {
         return newGlobe({
             newProjection: function() {
-                return d3.geo.mollweide().rotate([30, -45, 90]).precision(0.1);
+                return d3.geoMollweide().rotate([30, -45, 90]).precision(0.1);
             }
         });
     }
@@ -213,7 +213,7 @@ var globes = function() {
     function azimuthalEquidistant() {
         return newGlobe({
             newProjection: function() {
-                return d3.geo.azimuthalEquidistant().precision(0.1).rotate([0, -90]).clipAngle(180 - 0.001);
+                return d3.geoAzimuthalEquidistant().precision(0.1).rotate([0, -90]).clipAngle(180 - 0.001);
             }
         });
     }
@@ -221,7 +221,7 @@ var globes = function() {
     function conicEquidistant() {
         return newGlobe({
             newProjection: function() {
-                return d3.geo.conicEquidistant().rotate(currentPosition()).precision(0.1);
+                return d3.geoConicEquidistant().rotate(currentPosition()).precision(0.1);
             },
             center: function(view) {
                 return [view.width / 2, view.height / 2 + view.height * 0.065];
@@ -232,7 +232,7 @@ var globes = function() {
     function equirectangular() {
         return newGlobe({
             newProjection: function() {
-                return d3.geo.equirectangular().rotate(currentPosition()).precision(0.1);
+                return d3.geoEquirectangular().rotate(currentPosition()).precision(0.1);
             }
         });
     }
@@ -240,10 +240,10 @@ var globes = function() {
     function orthographic() {
         return newGlobe({
             newProjection: function() {
-                return d3.geo.orthographic().rotate(currentPosition()).precision(0.1).clipAngle(90);
+                return d3.geoOrthographic().rotate(currentPosition()).precision(0.1).clipAngle(90);
             },
             defineMap: function(mapSvg, foregroundSvg) {
-                var path = d3.geo.path().projection(this.projection);
+                var path = d3.geoPath().projection(this.projection);
                 var defs = mapSvg.append("defs");
                 var gradientFill = defs.append("radialGradient")
                     .attr("id", "orthographic-fill")
@@ -261,11 +261,11 @@ var globes = function() {
                     .attr("fill", "url(#orthographic-fill)");
                 mapSvg.append("path")
                     .attr("class", "graticule")
-                    .datum(d3.geo.graticule())
+                    .datum(d3.geoGraticule())
                     .attr("d", path);
                 mapSvg.append("path")
                     .attr("class", "hemisphere")
-                    .datum(d3.geo.graticule().minorStep([0, 90]).majorStep([0, 90]))
+                    .datum(d3.geoGraticule().stepMinor([0, 90]).stepMajor([0, 90]))
                     .attr("d", path);
                 mapSvg.append("path")
                     .attr("class", "coastline");
@@ -284,7 +284,7 @@ var globes = function() {
     function stereographic(view) {
         return newGlobe({
             newProjection: function(view) {
-                return d3.geo.stereographic()
+                return d3.geoStereographic()
                     .rotate([-43, -20])
                     .precision(1.0)
                     .clipAngle(180 - 0.0001)
@@ -296,10 +296,10 @@ var globes = function() {
     function waterman() {
         return newGlobe({
             newProjection: function() {
-                return d3.geo.polyhedron.waterman().rotate([20, 0]).precision(0.1);
+                return d3.geoPolyhedron.waterman().rotate([20, 0]).precision(0.1);
             },
             defineMap: function(mapSvg, foregroundSvg) {
-                var path = d3.geo.path().projection(this.projection);
+                var path = d3.geoPath().projection(this.projection);
                 var defs = mapSvg.append("defs");
                 defs.append("path")
                     .attr("id", "sphere")
@@ -315,7 +315,7 @@ var globes = function() {
                 mapSvg.append("path")
                     .attr("class", "graticule")
                     .attr("clip-path", "url(#clip)")
-                    .datum(d3.geo.graticule())
+                    .datum(d3.geoGraticule())
                     .attr("d", path);
                 mapSvg.append("path")
                     .attr("class", "coastline")
@@ -333,12 +333,12 @@ var globes = function() {
     function winkel3() {
         return newGlobe({
             newProjection: function() {
-                return d3.geo.winkel3().precision(0.1);
+                return d3.geoWinkel3().precision(0.1);
             }
         });
     }
 
-    return d3.map({
+    const map = new Map(Object.entries({
         atlantis: atlantis,
         azimuthal_equidistant: azimuthalEquidistant,
         conic_equidistant: conicEquidistant,
@@ -347,6 +347,7 @@ var globes = function() {
         stereographic: stereographic,
         waterman: waterman,
         winkel3: winkel3
-    });
+    }));
 
+    return map;
 }();

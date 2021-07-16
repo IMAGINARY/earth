@@ -320,8 +320,12 @@ var µ = function() {
      * object describing the reason: {status: http-status-code, message: http-status-text, resource:}.
      */
     function loadJson(resource) {
+        return d3.json(resource);
+
         var d = when.defer();
+        console.log('loadJson')
         d3.json(resource, function(error, result) {
+            console.log(error, result)
             return error ?
                 !error.status ?
                     d.reject({status: -1, message: "Cannot load resource: " + resource, resource: resource}) :
@@ -534,6 +538,8 @@ var µ = function() {
             };
             coalesce(tokens[9], "").split("/").forEach(function(segment) {
                 if ((option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment))) {
+                    console.log(option[1],projectionNames.has(option[1]));
+
                     if (projectionNames.has(option[1])) {
                         result.projection = option[1];                 // non-empty alphanumeric _
                         result.orientation = coalesce(option[3], "");  // comma delimited string of numbers, or ""
@@ -587,10 +593,12 @@ var µ = function() {
                         model._ignoreNextHashChangeEvent = false;
                         return;
                     }
-                    model.set(parse(
+                    const p = parse(
                         window.location.hash.substr(1) || DEFAULT_CONFIG,
                         model._projectionNames,
-                        model._overlayTypes));
+                        model._overlayTypes);
+                    console.log(p);
+                    model.set(p);
                     break;
                 case "update":
                     // Ugh. Setting the hash fires a hashchange event during the next event loop turn. Ignore it.
