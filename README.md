@@ -1,3 +1,29 @@
+# Visualization of air and ocean currents
+
+This is a fork of https://github.com/cambecc/earth, stripped down to the mere minimum.
+You can switch between air and ocean current visualization of a single data set, zoom and rotate the globe.
+All other options have been removed for the sake of simplicity.
+
+## Credits
+
+Original by Cameron Beccario
+
+Modifications by Christian Stussak, IMAGINARY gGmbH
+
+## License
+
+Licensed under the [MIT license](LICENSE.md).
+
+### Fonts
+
+This fork switches the font to [Big Shoulders Displays](https://fonts.google.com/specimen/Big+Shoulders+Display).
+Licensed under the [Open Font license](public/styles/OFL.txt).
+
+---
+
+Contents of the original `README.md` below.
+
+---
 earth
 =====
 
