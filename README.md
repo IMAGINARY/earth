@@ -6,8 +6,9 @@ It is part of the "[10 Minute Museum on the Mathematics of the Climate Crisis](h
 a pop-up exhibition created by [IMAGINARY](https://www.imaginary.org/).
 Data comes by the [Global Forecast System (GFS)](http://en.wikipedia.org/wiki/Global_Forecast_System),
 operated by the US National Weather Service. The GFS collects observational data and processes it with their own
-Global Circulation Models.  In the 10MM, this interactive visualization is used to illustrate what a
-Global Circulation Model can look like. This program does not actually forecast, process, or update any data.
+[General Circulation Models](https://en.wikipedia.org/wiki/General_circulation_model).
+In the 10MM, this interactive visualization is used to illustrate what a Global Circulation Model can look like.
+This program does not actually forecast, process, or update any data.
 
 The app is a fork of https://github.com/cambecc/earth, stripped down to the mere minimum. You can switch between air and
 ocean current visualization of a single data set, zoom and rotate the globe. All other options have been removed for the
