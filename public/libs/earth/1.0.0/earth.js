@@ -172,24 +172,46 @@
 
         d3.interpolateZoom = d3.interpolateArray;
         const svg = d3.select('svg')
-        function zoomClicked() {
-            svg.call(zoom.event); // https://github.com/mbostock/d3/issues/2387
+        
+        function renewZoomTransition(factor) {
+          svg.interrupt();
+          svg.call(zoom.event); // https://github.com/mbostock/d3/issues/2387
 
-            const factor = this.getAttribute("data-zoom");
+          const maxDuration = 750;
+          
+          // Clamp with the globe's scale extent.
+          const [minScaleExtent, maxScaleExtent] = globe.scaleExtent();
+          const currentZoomScale = zoom.scale();
+          const unclampedZoomScale = factor * currentZoomScale
+          const targetZoomScale = Math.min(maxScaleExtent, Math.max(minScaleExtent, unclampedZoomScale));
+          const duration = maxDuration * ((targetZoomScale - currentZoomScale) / (unclampedZoomScale - currentZoomScale));
+          
+          if(targetZoomScale !== zoom.scale()) {
+              zoom.scale(targetZoomScale);
 
-            // Clamp with the globe's scale extent.
-            const [minScaleExtent, maxScaleExtent] = globe.scaleExtent();
-            const targetZoomScale = Math.min(maxScaleExtent, Math.max(minScaleExtent, factor * zoom.scale()));
-
-            if(targetZoomScale !== zoom.scale()) {
-                zoom.scale(targetZoomScale);
-
-                svg.transition().ease('linear').duration(750).call(zoom.event);
-            }
+              const transition = svg
+                .transition("continuous-zoom")
+                .ease('linear')
+                .duration(duration)
+                .each("end", () => renewZoomTransition(factor))
+                .call(zoom.event);
+          }
         }
-
-        d3.selectAll(".imaginary-menu[data-zoom]")
-            .on("click", zoomClicked);
+        
+        function zoomContinuousStart() {
+            const factor = this.getAttribute("data-zoom");
+            renewZoomTransition(factor);
+        }
+        
+        function zoomContinuousStop() {
+            svg.interrupt("continuous-zoom");
+            svg.call(zoom.event);
+        }
+        
+        d3.selectAll("#imaginary-zoom-in, #imaginary-zoom-out")
+            .on("pointerdown", zoomContinuousStart)
+            .on("pointerup", zoomContinuousStop)
+            .on("pointercancel", zoomContinuousStop);
 
         var signalEnd = _.debounce(function() {
             if (!op || op.type !== "drag" && op.type !== "zoom") {
